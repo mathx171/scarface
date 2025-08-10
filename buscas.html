@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SCARFACE 171 - Sistema</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body, html {
+      height: 100%;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #000;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #login-container, #panel-container, #search-container {
+      background-color: #111;
+      padding: 30px;
+      border-radius: 8px;
+      width: 320px;
+      box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+    }
+    h1.title {
+      font-weight: bold;
+      font-size: 28px;
+      color: #ff0000;
+      text-align: center;
+      margin-bottom: 25px;
+      text-shadow:
+        0 0 5px rgba(255,255,255,0.1),
+        0 0 10px rgba(255,255,255,0.1);
+      border: 2px solid rgba(255,255,255,0.12);
+      padding: 10px 0;
+      border-radius: 6px;
+      user-select: none;
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 18px;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #444;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      font-weight: 600;
+    }
+    button:hover {
+      background-color: #666;
+    }
+    #error-message {
+      color: #ff5555;
+      margin-bottom: 15px;
+      text-align: center;
+      font-weight: bold;
+    }
+    #user-info {
+      margin-bottom: 20px;
+      font-weight: bold;
+      font-size: 16px;
+      color: #ff0000;
+      white-space: pre-line;
+    }
+    #options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    #result {
+      margin-top: 25px;
+      background-color: #222;
+      padding: 15px;
+      border-radius: 6px;
+      font-family: monospace;
+      white-space: pre-line;
+      line-height: 1.4;
+      user-select: text;
+      min-height: 100px;
+    }
+    #back-to-panel {
+      margin-top: 20px;
+      background-color: #a00;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Tela Login -->
+  <div id="login-container">
+    <h1 class="title">SCARFACE 171.</h1>
+    <div id="error-message"></div>
+    <label for="login">Login</label>
+    <input type="text" id="login" autocomplete="username" />
+    <label for="password">Senha</label>
+    <input type="password" id="password" autocomplete="current-password" />
+    <button id="btn-login">Entrar</button>
+  </div>
+
+  <!-- Painel -->
+  <div id="panel-container" style="display:none;">
+    <h1 class="title">SCARFACE 171.</h1>
+    <div id="user-info"></div>
+    <div id="options">
+      <button data-option="consulta nome">Consulta Nome</button>
+      <button data-option="consulta CPF">Consulta CPF</button>
+      <button data-option="consulta senha ROBLOX">Consulta Senha ROBLOX</button>
+      <button data-option="consulta dados conta ROBLOX">Consulta Dados Conta ROBLOX</button>
+      <button data-option="consulta fotos">Consulta Fotos</button>
+      <button data-option="derrubar numero">Derrubar Número</button>
+    </div>
+  </div>
+
+  <!-- Tela de Busca -->
+  <div id="search-container" style="display:none;">
+    <h1 class="title" id="search-title">Busca</h1>
+    <input type="text" id="search-input" placeholder="Digite sua busca..." autocomplete="off" />
+    <button id="btn-search">Buscar</button>
+    <div id="result"></div>
+    <button id="back-to-panel">← Voltar ao painel</button>
+  </div>
+
+<script>
+  const validUsers = {
+    mathxadmin: "mathx171",
+    mathx7: "mathx77"
+  };
+
+  const loginContainer = document.getElementById("login-container");
+  const panelContainer = document.getElementById("panel-container");
+  const searchContainer = document.getElementById("search-container");
+
+  const errorMessage = document.getElementById("error-message");
+  const btnLogin = document.getElementById("btn-login");
+  const loginInput = document.getElementById("login");
+  const passwordInput = document.getElementById("password");
+
+  const userInfoDiv = document.getElementById("user-info");
+  const optionsDiv = document.getElementById("options");
+
+  const searchTitle = document.getElementById("search-title");
+  const searchInput = document.getElementById("search-input");
+  const btnSearch = document.getElementById("btn-search");
+  const resultDiv = document.getElementById("result");
+  const backToPanelBtn = document.getElementById("back-to-panel");
+
+  let currentLogin = "";
+  let currentOption = "";
+
+  btnLogin.addEventListener("click", () => {
+    const loginVal = loginInput.value.trim();
+    const passVal = passwordInput.value;
+
+    if (validUsers[loginVal] && validUsers[loginVal] === passVal) {
+      errorMessage.textContent = "";
+      currentLogin = loginVal;
+
+      loginContainer.style.display = "none";
+      panelContainer.style.display = "block";
+      searchContainer.style.display = "none";
+
+      userInfoDiv.textContent = `LOGIN: ${loginVal}\nTIPO DE ACESSO: DONO`;
+    } else {
+      errorMessage.textContent = "LOGIN OU SENHA INCORRETO";
+    }
+  });
+
+  [loginInput, passwordInput].forEach(input => {
+    input.addEventListener("keyup", e => {
+      if (e.key === "Enter") {
+        btnLogin.click();
+      }
+    });
+  });
+
+  optionsDiv.addEventListener("click", e => {
+    if (e.target.tagName === "BUTTON") {
+      currentOption = e.target.getAttribute("data-option");
+      // Mostrar tela de busca com título correto
+      panelContainer.style.display = "none";
+      searchContainer.style.display = "block";
+      resultDiv.textContent = "";
+      searchInput.value = "";
+      searchTitle.textContent = `Busca: ${currentOption}`;
+      searchInput.focus();
+    }
+  });
+
+  btnSearch.addEventListener("click", () => {
+    const query = searchInput.value.trim();
+    if (!query) {
+      resultDiv.textContent = "Por favor, digite algo para buscar.";
+      return;
+    }
+    // Resultado fixo
+    const resultado = 
+`usuario Roblox: ${query}
+senha 🔑: testeii
+data de criação: 10 Ago, 2025.
+código verificação: ENVIE`;
+    resultDiv.textContent = resultado;
+  });
+
+  searchInput.addEventListener("keyup", e => {
+    if (e.key === "Enter") {
+      btnSearch.click();
+    }
+  });
+
+  backToPanelBtn.addEventListener("click", () => {
+    searchContainer.style.display = "none";
+    panelContainer.style.display = "block";
+  });
+</script>
+</body>
+</html>
